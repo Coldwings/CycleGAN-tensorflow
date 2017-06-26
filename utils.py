@@ -45,9 +45,9 @@ def image_generator(root: str, batch_size=1, resize: tuple = None, crop: tuple =
             if value_mode == 'origin':
                 yield imgs
             elif value_mode == 'sigmoid':
-                yield (imgs / 128.0) - 128.0
-            elif value_mode == 'tanh':
                 yield imgs / 255.0
+            elif value_mode == 'tanh':
+                yield (imgs / 127.5) - 1.0
     else:
         imgs = []
         for filename in img_list:
@@ -68,9 +68,9 @@ def image_generator(root: str, batch_size=1, resize: tuple = None, crop: tuple =
                 if value_mode == 'origin':
                     yield rt
                 elif value_mode == 'sigmoid':
-                    yield (rt / 128.0) - 128.0
-                elif value_mode == 'tanh':
                     yield rt / 255.0
+                elif value_mode == 'tanh':
+                    yield (rt / 128.0) - 128.0
 
 
 def visual_grid(X: np.array, shape: tuple((int, int))):

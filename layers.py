@@ -141,8 +141,3 @@ def abs_criterion(in_, target):
 @namespace('mae_criterion')
 def mae_criterion(in_, target):
     return tf.reduce_mean((in_ - target) ** 2)
-
-
-@namespace('sce_criterion')
-def sce_criterion(logits, labels):
-    return tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=logits, labels=labels))

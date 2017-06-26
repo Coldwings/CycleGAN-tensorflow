@@ -22,7 +22,7 @@ class Config():
             pool_size=(10, 'size of image pool that using by training discriminator'),
             num_resblock=(9, 'size of resblocks in generator'),
             sample_freq=(100, 'frequency of updating sample images'),
-            sample_to_file=(False, 'save samples to image file'),
+            sample_to_file=(True, 'save samples to image file'),
             logdir=('logs', 'path to save logs'),
             sampledir=('samples', 'path to save examples'),
             checkpointdir=('checkpoint', 'path to save checkpoints')

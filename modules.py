@@ -19,31 +19,32 @@ def generator(x, reuse, gdim=32):
     if reuse:
         tf.get_variable_scope().reuse_variables()
     with tf.variable_scope('encoder'):
-        # 256x256x3 --> #256x256x32
         x = reflect_pad(x, 3, name='rpinput')
         x = conv2d(x, gdim, 7, 1, name='convinput')
         x = instancenorm(x, name='insinput')
         x = lrelu(x)
-        # 256x256x32 --> #64x64x256
-        for i in range(1, 4):
+        # 256x256x32
+        for i in range(1, 3):
             x = reflect_pad(x, name='rp%d' % i)
             x = conv2d(x, gdim * (2 ** i), 3, 2, name='conv%d' % i)
             x = instancenorm(x, name='insn%d' % i)
             x = lrelu(x)
-        rs = x  ## for short-cut As RSGAN
+        res = x
+        # 64x64x128
     with tf.variable_scope('transform'):
-        # 64x64x256 --> 64x64x256
         for i in range(9):
-            x = res_block(x, gdim * (2 ** 3), name='res%d' % (i + 1))
+            x = res_block(x, gdim * (2 ** 2), name='res%d' % (i + 1))
+        # 64x64x128
     with tf.variable_scope('decoder'):
-        # 64x64x256 --> 256x256x3
-        x = x + rs
-        for i in range(3, 0, -1):
+        x = x + res
+        for i in range(1, -1, -1):
             x = deconv2d(x, gdim * (2 ** i), name='convT%d' % i)
             x = instancenorm(x, name='insn%d' % i)
             x = lrelu(x)
-        x = conv2d(x, 3, 3, padding='SAME', name='convout')
-        x = tf.nn.sigmoid(x, name='output')
+        x = reflect_pad(x, 3, name='rpoutput')
+        x = conv2d(x, 3, 7, padding='VALID', name='convout')
+        x = instancenorm(x, name='normout')
+        x = tf.nn.tanh(x, name='output')
     return x
 
 

@@ -181,9 +181,9 @@ class GANModel:
             print(" [!] Load failed...")
 
         realAtrain = image_generator(os.path.join(self.args.datadir, 'trainA'), 1,
-                                     resize=(self.args.imsize, self.args.imsize), value_mode='sigmoid')
+                                     resize=(self.args.imsize, self.args.imsize), value_mode='tanh')
         realBtrain = image_generator(os.path.join(self.args.datadir, 'trainB'), 1,
-                                     resize=(self.args.imsize, self.args.imsize), value_mode='sigmoid')
+                                     resize=(self.args.imsize, self.args.imsize), value_mode='tanh')
 
         fakeApool = DataPool(self.args.pool_size)
         fakeBpool = DataPool(self.args.pool_size)
@@ -260,9 +260,9 @@ class GANModel:
         :return:
         """
         realAtest = image_generator(os.path.join(self.args.datadir, 'testA'), 4,
-                                    resize=(self.args.imsize, self.args.imsize), value_mode='sigmoid')
+                                    resize=(self.args.imsize, self.args.imsize), value_mode='tanh')
         realBtest = image_generator(os.path.join(self.args.datadir, 'testB'), 4,
-                                    resize=(self.args.imsize, self.args.imsize), value_mode='sigmoid')
+                                    resize=(self.args.imsize, self.args.imsize), value_mode='tanh')
         real_A = next(realAtest)
         real_B = next(realBtest)
         fake_A, fake_B, cyc_A, cyc_B = self.sess.run(
@@ -281,7 +281,7 @@ class GANModel:
         )
 
         if self.args.sample_to_file:
-            imsave(os.path.join(path, '%4d-%4d.png' % (epoch, idx)), img, 'png')
+            imsave(os.path.join(path, '%04d-%04d.png' % (epoch, idx)), img, 'png')
 
         img = np.array([img])
 
@@ -295,11 +295,10 @@ class GANModel:
         :param count: 计数
         :return:
         """
-        if not os.path.exists(path):
-            os.makedirs(path)
+        checkpoint_name = 'CycleGAN.model'
 
         self.saver.save(self.sess,
-                        path,
+                        os.path.join(path, checkpoint_name),
                         global_step=count)
 
     def load(self, path):
@@ -312,7 +311,8 @@ class GANModel:
 
         ckpt = tf.train.get_checkpoint_state(path)
         if ckpt and ckpt.model_checkpoint_path:
-            self.saver.restore(self.sess, path)
+            checkpoint_name = os.path.basename(ckpt.model_checkpoint_path)
+            self.saver.restore(self.sess, os.path.join(path, checkpoint_name))
             return True
         else:
             return False
