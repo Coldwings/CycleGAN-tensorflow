@@ -323,6 +323,11 @@ class GANModel:
         :param direction: A2B、B2A
         :return:
         """
+        if self.load(self.args.checkpointdir):
+            print(" [*] Load SUCCESS")
+        else:
+            print(" [!] Load failed...")
+
         savepath = self.args.sampledir
         for file in glob.glob(os.path.join(self.args.datadir, '*.jpg')):
             filename = os.path.split(file)[-1]
